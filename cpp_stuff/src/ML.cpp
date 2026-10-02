@@ -20,10 +20,6 @@
 #include <file_transfer/file_transfer.h>
 #endif
 
-#define CONV2D_SW 419.3088582098988
-#define CONV2D_SI 188.32248822866472
-#define CONV2D_ZI -61
-
 namespace ML
 {
 
@@ -47,19 +43,19 @@ namespace ML
 
         // ME: I should add a checker for conv layers to make sure out and in shapes are good given the kernel size
 
-//        model.addLayer<ConvolutionalLayer>(
-//            LayerParams{sizeof(fp32), {64, 64, 3}},                                    // Input Data
-//            LayerParams{sizeof(fp32), {60, 60, 32}},                                   // Output Data
-//            LayerParams{sizeof(fp32), {5, 5, 3, 32}, modelPath / "model_data" / "conv2d_weights.bin"}, // Weights
-//            LayerParams{sizeof(fp32), {32}, modelPath / "model_data" / "conv2d_biases.bin"}            // Bias
-//        );
-
         model.addLayer<ConvolutionalLayer>(
-            LayerParams{sizeof(i8), {64, 64, 3}},                                    // Input Data
+            LayerParams{sizeof(fp32), {64, 64, 3}},                                    // Input Data
             LayerParams{sizeof(fp32), {60, 60, 32}},                                   // Output Data
-            LayerParams{sizeof(i8), {5, 5, 3, 32}, modelPath / "quantized_model_data" / "conv2d_quantized_weights.bin"}, // Weights
-            LayerParams{sizeof(i32), {32}, modelPath / "quantized_model_data" / "conv2d_quantized_combined_biases.bin"}            // Bias
+            LayerParams{sizeof(fp32), {5, 5, 3, 32}, modelPath / "model_data" / "conv2d_weights.bin"}, // Weights
+            LayerParams{sizeof(fp32), {32}, modelPath / "model_data" / "conv2d_biases.bin"}            // Bias
         );
+
+//        model.addLayer<ConvolutionalLayer>(
+//            LayerParams{sizeof(i8), {64, 64, 3}},                                    // Input Data
+//            LayerParams{sizeof(fp32), {60, 60, 32}},                                   // Output Data
+//            LayerParams{sizeof(i8), {5, 5, 3, 32}, modelPath / "quantized_model_data" / "conv2d_quantized_weights.bin"}, // Weights
+//            LayerParams{sizeof(i32), {32}, modelPath / "quantized_model_data" / "conv2d_quantized_combined_biases.bin"}            // Bias
+//        );
 
 
 
@@ -226,43 +222,7 @@ namespace ML
         dimVec input_dimensions = model.getLayer(layerNum).getInputParams().dims;
         std::size_t input_element_size = model.getLayer(layerNum).getInputParams().elementSize;
 
-        // 1. Get the required size first
-        size_t byte_size = model.getLayer(layerNum).getInputParams().byte_size();
-
-        // 2. Allocate the buffer memory properly
-        auto temp_data = std::make_unique<char[]>(byte_size);
-
-        Path somePath("."); 
-        std::ifstream file(input_bin_path, std::ios::binary); 
-
-        if (file.is_open())
-        {
-            std::cout << "Opened binary file " << input_bin_path << std::endl;
-            
-            // 3. Read into the allocated buffer
-            if (file.read(temp_data.get(), byte_size))
-            {
-                std::cout << "Saving to: " << std::filesystem::current_path() / "quantized_inputs.bin" << std::endl;
-                std::ofstream outFile("quantized_inputs.bin", std::ios::out | std::ios::binary);
-                
-                if (!outFile)
-                {
-                    std::cout << "Error couldn't open output file!\n";
-                }
-                else
-                {
-                    for (size_t i = 0; i < byte_size; i++)
-                    {
-                        // Note: temp_data[i] is a char (signed or unsigned depending on platform). 
-                        // Ensure CONV2D_SI math expects the char's raw numeric value.
-                        i8 quantized_value = static_cast<i8>(std::clamp(std::lrint(CONV2D_SI * temp_data[i] + CONV2D_ZI), -128L, 127L));
-                        outFile.put(quantized_value);
-                    }
-                }
-            }
-        }
-
-        LayerData input_data({input_element_size, input_dimensions, somePath / "quantized_inputs.bin"});
+        LayerData input_data({input_element_size, input_dimensions, input_bin_path});
 
         input_data.loadData();
 

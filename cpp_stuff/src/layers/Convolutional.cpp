@@ -6,9 +6,9 @@
 #include "../Utils.h"
 #include "Layer.h"
 
-#define CONV2D_SW 419.3088582098988
-#define CONV2D_SI 188.32248822866472
-#define CONV2D_ZI -61
+//#define CONV2D_SW 419.3088582098988
+//#define CONV2D_SI 188.32248822866472
+//#define CONV2D_ZI -61
 
 namespace ML
 {
@@ -62,7 +62,7 @@ namespace ML
 
     
         // where I accumulate the sum
-        i32 sum = 0;
+        fp32 sum = 0;
 
         for (b = 0; b < kernel_b; b++){
             for (j = 0; j < out_h; j++){
@@ -72,23 +72,22 @@ namespace ML
                             for (k = 0; k < kernel_w; k++){
                                 sum += 
                                 (
-                                    getWeightData().get<i8>(get_kernel_flat_idx(i, k, d, b, kernel_w, kernel_d, kernel_b))
+                                    getWeightData().get<fp32>(get_kernel_flat_idx(i, k, d, b, kernel_w, kernel_d, kernel_b))
                                     *
-                                    dataIn.get<i8>(get_image_flat_idx(j + i, l + k, d, image_w, image_d))
+                                    dataIn.get<fp32>(get_image_flat_idx(j + i, l + k, d, image_w, image_d))
                                 );
                             }
                         }
                     }
                     // Apply the ReLu function
-                    i32 sum_plus_bias = sum + getBiasData().get<i32>(b);
+                    fp32 sum_plus_bias = sum + getBiasData().get<fp32>(b);
 
-                    getOutputData().get<fp32>(get_out_flat_idx(j, l, b, out_w, kernel_b)) = sum_plus_bias > 0 ? sum_plus_bias/(CONV2D_SI * CONV2D_SW) : 0;
+                    getOutputData().get<fp32>(get_out_flat_idx(j, l, b, out_w, kernel_b)) = sum_plus_bias > 0 ? sum_plus_bias : 0;
 
                     sum = 0;
                }
            }
         }
-
     }
 
     // Compute the convolution using threads
