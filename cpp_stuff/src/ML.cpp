@@ -43,19 +43,19 @@ namespace ML
 
         // ME: I should add a checker for conv layers to make sure out and in shapes are good given the kernel size
 
-        model.addLayer<ConvolutionalLayer>(
-            LayerParams{sizeof(fp32), {64, 64, 3}},                                    // Input Data
-            LayerParams{sizeof(fp32), {60, 60, 32}},                                   // Output Data
-            LayerParams{sizeof(fp32), {5, 5, 3, 32}, modelPath / "model_data" / "conv2d_weights.bin"}, // Weights
-            LayerParams{sizeof(fp32), {32}, modelPath / "model_data" / "conv2d_biases.bin"}            // Bias
-        );
-
 //        model.addLayer<ConvolutionalLayer>(
-//            LayerParams{sizeof(i8), {64, 64, 3}},                                    // Input Data
+//            LayerParams{sizeof(fp32), {64, 64, 3}},                                    // Input Data
 //            LayerParams{sizeof(fp32), {60, 60, 32}},                                   // Output Data
-//            LayerParams{sizeof(i8), {5, 5, 3, 32}, modelPath / "quantized_model_data" / "conv2d_quantized_weights.bin"}, // Weights
-//            LayerParams{sizeof(i32), {32}, modelPath / "quantized_model_data" / "conv2d_quantized_combined_biases.bin"}            // Bias
+//            LayerParams{sizeof(fp32), {5, 5, 3, 32}, modelPath / "model_data" / "conv2d_weights.bin"}, // Weights
+//            LayerParams{sizeof(fp32), {32}, modelPath / "model_data" / "conv2d_biases.bin"}            // Bias
 //        );
+
+        model.addLayer<ConvolutionalLayer>(
+            LayerParams{sizeof(i8), {64, 64, 3}},                                    // Input Data
+            LayerParams{sizeof(fp32), {60, 60, 32}},                                   // Output Data
+            LayerParams{sizeof(i8), {5, 5, 3, 32}, modelPath / "quantized_model_data" / "conv2d_quantized_weights.bin"}, // Weights
+            LayerParams{sizeof(i32), {32}, modelPath / "quantized_model_data" / "conv2d_quantized_combined_biases.bin"}            // Bias
+        );
 
 
 
@@ -276,7 +276,7 @@ namespace ML
         runBasicTest(model, basePath);
 
         // Run a layer inference test
-        runLayerTest(0,  model, basePath / "test_input" / "test_input_image.bin", basePath / "test_input_feature_maps" / "conv2d_feature.bin");
+        runLayerTest(0,  model, basePath / "test_input" / "quantized_test_input_image.bin", basePath / "test_input_feature_maps" / "conv2d_feature.bin");
 
         // Clean up
         model.freeLayers();
