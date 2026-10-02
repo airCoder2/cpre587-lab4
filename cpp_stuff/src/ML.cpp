@@ -53,8 +53,8 @@ namespace ML
         model.addLayer<ConvolutionalLayer>(
             LayerParams{sizeof(i8), {64, 64, 3}},                                    // Input Data
             LayerParams{sizeof(fp32), {60, 60, 32}},                                   // Output Data
-            LayerParams{sizeof(i8), {5, 5, 3, 32}, modelPath / "quantized_model_data" / "conv2d_quantized_weights.bin"}, // Weights
-            LayerParams{sizeof(i32), {32}, modelPath / "quantized_model_data" / "conv2d_quantized_combined_biases.bin"}            // Bias
+            LayerParams{sizeof(i8), {5, 5, 3, 32}, modelPath / "quantized_model_data" / "weights_8bit" / "conv2d_quantized_weights.bin"}, // Weights
+            LayerParams{sizeof(i32), {32}, modelPath / "quantized_model_data" / "biases_8bit" / "conv2d_quantized_combined_biases.bin"}            // Bias
         );
 
 
