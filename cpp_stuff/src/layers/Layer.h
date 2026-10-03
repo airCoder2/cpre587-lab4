@@ -48,6 +48,8 @@ namespace ML
     {
     public:
         inline LayerData(const LayerParams &params) : params(params) {}
+        // this one, so if there is another path passed, it overrites the default one inside.
+        // Used to construct a LayerData using output shape of a layer.
         inline LayerData(const LayerParams &params, const Path path) : params(params.elementSize, params.dims, path) {}
 
         inline LayerData(const LayerData &other) : params(other.params)

@@ -51,13 +51,30 @@ namespace ML
 //        );
 
         model.addLayer<ConvolutionalLayer>(
-            LayerParams{sizeof(i8), {64, 64, 3}},                                    // Input Data
+            LayerParams{sizeof(fp32), {64, 64, 3}},                                    // Input Data
             LayerParams{sizeof(fp32), {60, 60, 32}},                                   // Output Data
-            LayerParams{sizeof(i8), {5, 5, 3, 32}, modelPath / "quantized_model_data" / "conv2d_quantized_weights.bin"}, // Weights
-            LayerParams{sizeof(i32), {32}, modelPath / "quantized_model_data" / "conv2d_quantized_combined_biases.bin"}            // Bias
+            LayerParams{sizeof(i8), {5, 5, 3, 32}, modelPath / "quantized_model_data"/"weights_8bit" / "conv2d_weights.bin"}, // Weights
+            LayerParams{sizeof(i32), {32}, modelPath / "quantized_model_data"/ "biases_8bit" / "conv2d_biases.bin"}            // Bias
         );
 
+//        model.addLayer<ConvolutionalLayer>(
+//            LayerParams{sizeof(fp32), {64, 64, 3}},                                    // Input Data
+//            LayerParams{sizeof(fp32), {60, 60, 32}},                                   // Output Data
+//            LayerParams{sizeof(i8), {5, 5, 3, 32}, modelPath / "quantized_model_data" / "conv2d_quantized_weights.bin"}, // Weights
+//            LayerParams{sizeof(i32), {32}, modelPath / "quantized_model_data" / "conv2d_quantized_combined_biases.bin"}            // Bias
+//        );
 
+
+
+   //     // --- Conv 2: L2 ---
+   //     // Input shape: 60x60x32
+   //     // Output shape: 56x56x32
+   //     model.addLayer<ConvolutionalLayer>(
+   //         LayerParams{sizeof(fp32), {60, 60, 32}},                                    // Input Data
+   //         LayerParams{sizeof(fp32), {56, 56, 32}},                                   // Output Data
+   //         LayerParams{sizeof(fp32), {5, 5, 32, 32}, modelPath / "conv2_weights.bin"}, // Weights
+   //         LayerParams{sizeof(fp32), {32}, modelPath / "conv2_biases.bin"}            // Bias
+   //     );
 
    //     // --- Conv 2: L2 ---
    //     // Input shape: 60x60x32
@@ -209,8 +226,6 @@ namespace ML
 //                data[i] = 
 
 
-
-
     void runLayerTest(const std::size_t layerNum, const Model &model, const Path &input_bin_path, const Path &output_ground_truth_path)
     {
         // Load an image
@@ -222,8 +237,9 @@ namespace ML
         dimVec input_dimensions = model.getLayer(layerNum).getInputParams().dims;
         std::size_t input_element_size = model.getLayer(layerNum).getInputParams().elementSize;
 
+        // See if you can initialize this is quantization path, and quantization type. So if you do that,
+        // rather than allocating data for non quantized one, it does it for quantized
         LayerData input_data({input_element_size, input_dimensions, input_bin_path});
-
         input_data.loadData();
 
         Timer timer("Layer Inference");
@@ -270,13 +286,14 @@ namespace ML
 
         // Build the model and allocate the buffers
         Model model = buildToyModel(basePath);
-        model.allocLayers(); // ME: loads all the weights of the layers from binrary files into allocated memory
+        model.allocLayers(); // ME: allocates memory to store out_data from each leayer
 
         // Run some framework tests as an example of loading data
         runBasicTest(model, basePath);
 
         // Run a layer inference test
-        runLayerTest(0,  model, basePath / "test_input" / "quantized_test_input_image.bin", basePath / "test_input_feature_maps" / "conv2d_feature.bin");
+        runLayerTest(0,  model, basePath / "test_input" / "test_input_image.bin", basePath / "test_input_feature_maps" / "conv2d_feature.bin");
+        // Give the path of the actual image rather than the quantized
 
         // Clean up
         model.freeLayers();
