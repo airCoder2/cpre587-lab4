@@ -3,9 +3,13 @@
 #include <cassert>
 #include <algorithm>
 
+//#define conv2d_Sw  419.3088582098988
+//#define conv2d_Si  188.32248822866472
+//#define conv2d_Zi  -61
+
 #define conv2d_Sw  419.3088582098988
-#define conv2d_Si  188.32248822866472
-#define conv2d_Zi  -61
+#define conv2d_Si  77.48698028248077
+#define conv2d_Zi  -3
 
 namespace ML {
 

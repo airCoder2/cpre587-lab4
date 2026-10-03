@@ -6,9 +6,15 @@
 #include "../Utils.h"
 #include "Layer.h"
 
-#define CONV2D_SW 419.3088582098988
-#define CONV2D_SI 188.32248822866472
-#define CONV2D_ZI -61
+//#define CONV2D_SW 419.3088582098988
+//#define CONV2D_SI 188.32248822866472
+//#define CONV2D_ZI -61
+
+
+#define CONV2D_SW  419.3088582098988
+#define CONV2D_SI  77.48698028248077
+#define CONV2D_ZI  -3
+
 
 namespace ML
 {
