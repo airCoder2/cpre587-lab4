@@ -23,7 +23,7 @@ namespace ML
 
     // Compute the convultion for the layer data
     // ME: the LayerData object passed has been loaded before (by img.loadData() no need to do it again)
-    void MaxPoolingLayer::computeNaive(const LayerData &dataIn) const
+    void MaxPoolingLayer::computeNaive(const LayerData &dataIn, const int layer_num) const
     {
         size_t input_h = getInputParams().dims[0];
         size_t input_w = getInputParams().dims[1];
@@ -40,12 +40,12 @@ namespace ML
             {
                 for (j = 0; j < input_w; j+=2)
                 {
-                    getOutputData().get<fp32>(get_out_flat_idx(i/2, j/2, k, output_w, output_d)) = std::max
+                    getOutputData().get<i8>(get_out_flat_idx(i/2, j/2, k, output_w, output_d)) = std::max
                     ({
-                        dataIn.get<fp32>(get_input_flat_idx(i, j, k, input_w, input_d)),
-                        dataIn.get<fp32>(get_input_flat_idx(i, j+1, k, input_w, input_d)),
-                        dataIn.get<fp32>(get_input_flat_idx(i+1, j, k, input_w, input_d)),
-                        dataIn.get<fp32>(get_input_flat_idx(i+1, j+1, k, input_w, input_d))
+                        dataIn.get<i8>(get_input_flat_idx(i, j, k, input_w, input_d)),
+                        dataIn.get<i8>(get_input_flat_idx(i, j+1, k, input_w, input_d)),
+                        dataIn.get<i8>(get_input_flat_idx(i+1, j, k, input_w, input_d)),
+                        dataIn.get<i8>(get_input_flat_idx(i+1, j+1, k, input_w, input_d))
                     });
                 }
                 

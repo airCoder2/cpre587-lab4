@@ -3,7 +3,7 @@
 #include "../Types.h"
 #include "../Utils.h"
 #include "Layer.h"
-
+#include "./config.h"
 namespace ML {
 class ConvolutionalLayer : public Layer {
    public:
@@ -35,7 +35,7 @@ class ConvolutionalLayer : public Layer {
     }
 
     // Virtual functions
-    virtual void computeNaive(const LayerData& dataIn) const override;
+    virtual void computeNaive(const LayerData& dataIn, const int layer_num) const override;
     virtual void computeThreaded(const LayerData& dataIn) const override;
     virtual void computeTiled(const LayerData& dataIn) const override;
     virtual void computeSIMD(const LayerData& dataIn) const override;

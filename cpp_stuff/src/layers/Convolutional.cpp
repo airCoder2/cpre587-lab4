@@ -1,19 +1,13 @@
 #include "Convolutional.h"
 
 #include <iostream>
+#include <algorithm>
 
 #include "../Types.h"
 #include "../Utils.h"
 #include "Layer.h"
+#include "./config.h"
 
-//#define CONV2D_SW 419.3088582098988
-//#define CONV2D_SI 188.32248822866472
-//#define CONV2D_ZI -61
-
-
-#define CONV2D_SW  419.3088582098988
-#define CONV2D_SI  77.48698028248077
-#define CONV2D_ZI  -3
 
 
 namespace ML
@@ -34,7 +28,7 @@ namespace ML
 
     // Compute the convultion for the layer data
     // ME: the LayerData object passed has been loaded before (by img.loadData() no need to do it again)
-    void ConvolutionalLayer::computeNaive(const LayerData &dataIn) const
+    void ConvolutionalLayer::computeNaive(const LayerData &dataIn, const int layer_num) const
     {
         // TODO: Your Code Here...
         // The following line is an example of copying a single 32-bit floating point integer from the input layer data to the output layer data
@@ -88,7 +82,24 @@ namespace ML
                     // Apply the ReLu function
                     i32 sum_plus_bias = sum + getBiasData().get<i32>(b);
 
-                    getOutputData().get<fp32>(get_out_flat_idx(j, l, b, out_w, kernel_b)) = sum_plus_bias > 0 ? sum_plus_bias/(CONV2D_SI * CONV2D_SW) : 0.0;
+//                    if (layer_num != 3) {
+//
+//                        double M      = SI_VALS[layer_num + 1] / (SI_VALS[layer_num] * SW_VALS[layer_num]);
+//                        double z_next = SZ_VALS[layer_num + 1];
+//
+//                        double out_val = std::round(sum_plus_bias * M) + z_next;   // requantize
+//                        out_val = std::clamp(out_val, z_next, 127.0);                    // RELU 
+//                        
+//                        // cast it to i8 and assign to output
+//                        getOutputData().get<i8>(get_out_flat_idx(j, l, b, out_w, kernel_b)) = static_cast<i8>(out_val);
+//                    }
+//                    else
+//                    {
+//                        getOutputData().get<fp32>(get_out_flat_idx(j, l, b, out_w, kernel_b)) = sum_plus_bias > 0 ? sum_plus_bias/(SI_VALS[layer_num] * SW_VALS[layer_num]) : 0.0;
+//                    }
+
+                        getOutputData().get<fp32>(get_out_flat_idx(j, l, b, out_w, kernel_b)) = sum_plus_bias > 0 ? sum_plus_bias/(183.4257 * 35.7570) : 0.0;
+                    
 
                     sum = 0;
                }

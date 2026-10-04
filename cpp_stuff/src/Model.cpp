@@ -31,26 +31,12 @@ const LayerData& Model::inference(const LayerData& inData, const Layer::InfType 
 const LayerData& Model::inferenceLayer(const LayerData& inData, const int layerNum, const Layer::InfType infType) const {
     Layer& layer = *layers[layerNum];
 
-    // Quantize inData here.
-    // This is wrong since we are allocaitng more data than necessary
-    LayerData quantized_data = {{sizeof(i8), inData.getParams().dims}};
-    quantized_data.allocData();
-    for (size_t i = 0; i < inData.getParams().flat_count(); i++)
-    {
-        i8 temp = static_cast<i8>(std::clamp(std::nearbyint((conv2d_Si * inData.get<fp32>(i) + conv2d_Zi)), -128.0, 127.0));
-
-        quantized_data.get<i8>(i) = temp;
-    }
-    
-
     assert(layer.getInputParams().isCompatible(inData.getParams()) && "Input data is not compatible with layer");
     assert(layer.isOutputBufferAlloced() && "Output buffer must be allocated prior to inference");
 
-
-
     switch (infType) {
     case Layer::InfType::NAIVE:
-        layer.computeNaive(quantized_data);
+        layer.computeNaive(inData, layerNum);
         break;
     case Layer::InfType::THREADED:
         layer.computeThreaded(inData);

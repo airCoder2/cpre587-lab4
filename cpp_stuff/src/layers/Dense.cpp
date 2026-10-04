@@ -13,7 +13,7 @@ namespace ML
 
     // Compute the convultion for the layer data
     // ME: the LayerData object passed has been loaded before (by img.loadData() no need to do it again)
-    void DenseLayer::computeNaive(const LayerData &dataIn) const
+    void DenseLayer::computeNaive(const LayerData &dataIn, const int layer_num) const
     {
         /*
             Here is how the dense layer works:
