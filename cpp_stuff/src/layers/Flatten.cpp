@@ -14,7 +14,7 @@ namespace ML
     // --- Begin Student Code ---
 
     // ME: the LayerData object passed has been loaded before (by img.loadData() no need to do it again)
-    void FlattenLayer::computeNaive(const LayerData &dataIn, const int laye_num) const
+    void FlattenLayer::computeNaive(const LayerData &dataIn, const int layer_num) const
     {
         // flatten was one line, because I added a new = operator that takes care of it in LayerData object
         getOutputData() = dataIn;

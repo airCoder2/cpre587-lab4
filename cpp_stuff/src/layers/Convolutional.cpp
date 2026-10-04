@@ -82,24 +82,29 @@ namespace ML
                     // Apply the ReLu function
                     i32 sum_plus_bias = sum + getBiasData().get<i32>(b);
 
-//                    if (layer_num != 3) {
-//
-//                        double M      = SI_VALS[layer_num + 1] / (SI_VALS[layer_num] * SW_VALS[layer_num]);
-//                        double z_next = SZ_VALS[layer_num + 1];
-//
-//                        double out_val = std::round(sum_plus_bias * M) + z_next;   // requantize
-//                        out_val = std::clamp(out_val, z_next, 127.0);                    // RELU 
-//                        
-//                        // cast it to i8 and assign to output
-//                        getOutputData().get<i8>(get_out_flat_idx(j, l, b, out_w, kernel_b)) = static_cast<i8>(out_val);
-//                    }
-//                    else
-//                    {
-//                        getOutputData().get<fp32>(get_out_flat_idx(j, l, b, out_w, kernel_b)) = sum_plus_bias > 0 ? sum_plus_bias/(SI_VALS[layer_num] * SW_VALS[layer_num]) : 0.0;
-//                    }
-
-                        getOutputData().get<fp32>(get_out_flat_idx(j, l, b, out_w, kernel_b)) = sum_plus_bias > 0 ? sum_plus_bias/(183.4257 * 35.7570) : 0.0;
+                    double M      = SI_VALS[layer_num + 1] / (SI_VALS[layer_num] * SW_VALS[layer_num]);
+                    double z_next = SZ_VALS[layer_num + 1];
                     
+
+                    if (layer_num == 1 || layer_num == 4 || layer_num == 5)
+                    {
+                        M      = SI_VALS[layer_num + 2] / (SI_VALS[layer_num] * SW_VALS[layer_num]);
+                        z_next = SZ_VALS[layer_num + 2];
+                    }
+
+                    if (layer_num == 7)
+                    {
+                        M      = SI_VALS[layer_num + 3] / (SI_VALS[layer_num] * SW_VALS[layer_num]);
+                        z_next = SZ_VALS[layer_num + 3];
+                    }
+
+
+                    double out_val = std::round(sum_plus_bias * M) + z_next;   // requantize
+                    out_val = std::clamp(out_val, z_next, 127.0);                    // RELU 
+                    
+                    // cast it to i8 and assign to output
+                    getOutputData().get<i8>(get_out_flat_idx(j, l, b, out_w, kernel_b)) = static_cast<i8>(out_val);
+
 
                     sum = 0;
                }

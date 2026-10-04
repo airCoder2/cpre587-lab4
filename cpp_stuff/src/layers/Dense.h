@@ -3,6 +3,7 @@
 #include "../Types.h"
 #include "../Utils.h"
 #include "Layer.h"
+#include "./config.h"
 
 namespace ML {
 class DenseLayer : public Layer {
