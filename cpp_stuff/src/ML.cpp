@@ -15,19 +15,11 @@
 #include "layers/MaxPooling.h"
 #include "layers/Flatten.h"
 #include "layers/Softmax.h"
+#include "layers/config.h"
 
 #ifdef ZEDBOARD
 #include <file_transfer/file_transfer.h>
 #endif
-
-
-#define conv2d_Sw  419.3088582098988
-#define conv2d_Si  228.2462633602231
-#define conv2d_Zi  -101
-
-//#define conv2d_Sw 227.7 
-//#define conv2d_Si  8.156
-//#define conv2d_Zi  -5
 
 namespace ML
 {
@@ -44,8 +36,8 @@ namespace ML
         model.addLayer<ConvolutionalLayer>(
             LayerParams{sizeof(i8), {64, 64, 3}},                                    // Input Data
             LayerParams{sizeof(i8), {60, 60, 32}},                                   // Output Data
-            LayerParams{sizeof(i8), {5, 5, 3, 32}, modelPath / "quantized_model_data"/"weights_8bit" / "conv2d_weights.bin"}, // Weights
-            LayerParams{sizeof(i32), {32}, modelPath / "quantized_model_data"/ "biases_8bit" / "conv2d_biases.bin"}            // Bias
+            LayerParams{sizeof(i8), {5, 5, 3, 32}, modelPath / "quantized_model_data"/ weights_dir/ "conv2d_weights.bin"}, // Weights
+            LayerParams{sizeof(i32), {32}, modelPath / "quantized_model_data"/ biases_dir / "conv2d_biases.bin"}            // Bias
         );
 
         // --- Conv 2: L2 ---
@@ -54,8 +46,8 @@ namespace ML
         model.addLayer<ConvolutionalLayer>(
             LayerParams{sizeof(i8), {60, 60, 32}},                                    // Input Data
             LayerParams{sizeof(i8), {56, 56, 32}},                                   // Output Data
-            LayerParams{sizeof(i8), {5, 5, 32, 32}, modelPath / "quantized_model_data"/"weights_8bit" / "conv2d_1_weights.bin"}, // Weights
-            LayerParams{sizeof(i32), {32}, modelPath / "quantized_model_data"/ "biases_8bit" / "conv2d_1_biases.bin"}            // Bias
+            LayerParams{sizeof(i8), {5, 5, 32, 32}, modelPath / "quantized_model_data"/weights_dir / "conv2d_1_weights.bin"}, // Weights
+            LayerParams{sizeof(i32), {32}, modelPath / "quantized_model_data"/ biases_dir / "conv2d_1_biases.bin"}            // Bias
         );
 
         // --- MPL 1: L3 ---
@@ -72,8 +64,8 @@ namespace ML
         model.addLayer<ConvolutionalLayer>(
             LayerParams{sizeof(i8), {28, 28, 32}},                                    // Input Data
             LayerParams{sizeof(i8), {26, 26, 64}},                                   // Output Data
-            LayerParams{sizeof(i8), {3, 3, 32, 64}, modelPath / "quantized_model_data"/"weights_8bit" / "conv2d_2_weights.bin"}, // Weights
-            LayerParams{sizeof(i32), {64}, modelPath / "quantized_model_data"/ "biases_8bit" / "conv2d_2_biases.bin"}            // Bias
+            LayerParams{sizeof(i8), {3, 3, 32, 64}, modelPath / "quantized_model_data"/ weights_dir / "conv2d_2_weights.bin"}, // Weights
+            LayerParams{sizeof(i32), {64}, modelPath / "quantized_model_data"/ biases_dir / "conv2d_2_biases.bin"}            // Bias
         );
 
         // --- Conv 4: L5 ---
@@ -82,8 +74,8 @@ namespace ML
         model.addLayer<ConvolutionalLayer>(
             LayerParams{sizeof(i8), {26, 26, 64}},                                    // Input Data
             LayerParams{sizeof(i8), {24, 24, 64}},                                   // Output Data
-            LayerParams{sizeof(i8), {3, 3, 64, 64}, modelPath / "quantized_model_data"/"weights_8bit" / "conv2d_3_weights.bin"}, // Weights
-            LayerParams{sizeof(i32), {64}, modelPath / "quantized_model_data"/ "biases_8bit" / "conv2d_3_biases.bin"}            // Bias
+            LayerParams{sizeof(i8), {3, 3, 64, 64}, modelPath / "quantized_model_data"/ weights_dir / "conv2d_3_weights.bin"}, // Weights
+            LayerParams{sizeof(i32), {64}, modelPath / "quantized_model_data"/ biases_dir / "conv2d_3_biases.bin"}            // Bias
         );
 
         // --- MPL 2: L6 ---
@@ -100,8 +92,8 @@ namespace ML
         model.addLayer<ConvolutionalLayer>(
             LayerParams{sizeof(i8), {12, 12, 64}},                                    // Input Data
             LayerParams{sizeof(i8), {10, 10, 64}},                                   // Output Data
-            LayerParams{sizeof(i8), {3, 3, 64, 64}, modelPath / "quantized_model_data"/"weights_8bit" / "conv2d_4_weights.bin"}, // Weights
-            LayerParams{sizeof(i32), {64}, modelPath / "quantized_model_data"/ "biases_8bit" / "conv2d_4_biases.bin"}            // Bias
+            LayerParams{sizeof(i8), {3, 3, 64, 64}, modelPath / "quantized_model_data"/ weights_dir / "conv2d_4_weights.bin"}, // Weights
+            LayerParams{sizeof(i32), {64}, modelPath / "quantized_model_data"/ biases_dir / "conv2d_4_biases.bin"}            // Bias
         );
 
         // --- Conv 6: L8 ---
@@ -110,8 +102,8 @@ namespace ML
         model.addLayer<ConvolutionalLayer>(
             LayerParams{sizeof(i8), {10, 10, 64}},                                    // Input Data
             LayerParams{sizeof(i8), {8, 8, 128}},                                   // Output Data
-            LayerParams{sizeof(i8), {3, 3, 64, 128}, modelPath / "quantized_model_data"/"weights_8bit" / "conv2d_5_weights.bin"}, // Weights
-            LayerParams{sizeof(i32), {128}, modelPath / "quantized_model_data"/ "biases_8bit" / "conv2d_5_biases.bin"}            // Bias
+            LayerParams{sizeof(i8), {3, 3, 64, 128}, modelPath / "quantized_model_data"/ weights_dir / "conv2d_5_weights.bin"}, // Weights
+            LayerParams{sizeof(i32), {128}, modelPath / "quantized_model_data"/ biases_dir / "conv2d_5_biases.bin"}            // Bias
         );
 
         // --- MPL 3: L9 ---
@@ -136,8 +128,8 @@ namespace ML
         model.addLayer<DenseLayer>(
             LayerParams{sizeof(i8), {2048}},                                    // Input Data
             LayerParams{sizeof(i8), {256}},                                   // Output Data
-            LayerParams{sizeof(i8), {2048, 256}, modelPath / "quantized_model_data"/"weights_8bit" / "dense_weights.bin"}, // Weights
-            LayerParams{sizeof(i32), {256}, modelPath / "quantized_model_data"/ "biases_8bit" / "dense_biases.bin"}  ,    // Bias
+            LayerParams{sizeof(i8), {2048, 256}, modelPath / "quantized_model_data"/ weights_dir / "dense_weights.bin"}, // Weights
+            LayerParams{sizeof(i32), {256}, modelPath / "quantized_model_data"/ biases_dir/ "dense_biases.bin"}  ,    // Bias
             DenseLayer::ActivationType::ReLU
         );
 
@@ -147,8 +139,8 @@ namespace ML
         model.addLayer<DenseLayer>(
             LayerParams{sizeof(i8), {256}},                                    // Input Data
             LayerParams{sizeof(fp32), {200}},                                   // Output Data
-            LayerParams{sizeof(i8), {256, 200}, modelPath / "quantized_model_data"/"weights_8bit" / "dense_1_weights.bin"}, // Weights
-            LayerParams{sizeof(i32), {200}, modelPath / "quantized_model_data"/ "biases_8bit" / "dense_1_biases.bin"}  ,    // Bias
+            LayerParams{sizeof(i8), {256, 200}, modelPath / "quantized_model_data"/ weights_dir / "dense_1_weights.bin"}, // Weights
+            LayerParams{sizeof(i32), {200}, modelPath / "quantized_model_data"/ biases_dir / "dense_1_biases.bin"}  ,    // Bias
             DenseLayer::ActivationType::SoftMax
 
         );
@@ -180,14 +172,13 @@ namespace ML
 
         for (size_t i = 0; i < model[0].getInputParams().flat_count(); i++)
         {
-            i8 temp = static_cast<i8>(std::clamp(std::nearbyint((conv2d_Si * unquantized_img.get<fp32>(i) + conv2d_Zi)), -128.0, 127.0));
+            i8 temp = static_cast<i8>(std::clamp(std::nearbyint((SI_VALS[0] * unquantized_img.get<fp32>(i) + SZ_VALS[0])), min_value, max_value));
 
             quantized_image.get<i8>(i) = temp;
         }
 
         // free the unquantized image, we don't need to hold in our memory anymore
         unquantized_img.freeData();
-
 
         Timer timer("Full Inference");
 
@@ -214,7 +205,6 @@ namespace ML
 
         runInferenceTest(model, basePath / "test_input"/"test_input_image.bin", basePath / "test_input_feature_maps" / "dense_1_feature.bin");
         //runInferenceTest(model, basePath / "test_input_feature_maps"/"dense_feature.bin", basePath / "test_input_feature_maps" / "dense_1_feature.bin");
-
 
         // Clean up
         model.freeLayers();

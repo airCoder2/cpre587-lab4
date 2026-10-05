@@ -77,13 +77,13 @@ namespace ML
 
         case ActivationType::ReLU:
         {
-            double M      = SI_VALS[layer_num + 1] / (SI_VALS[layer_num] * SW_VALS[layer_num]);
-            double z_next = SZ_VALS[layer_num + 1];
+            float M      = SI_VALS[layer_num + 1] / (SI_VALS[layer_num] * SW_VALS[layer_num]);
+            float z_next = SZ_VALS[layer_num + 1];
             for (i = 0; i < output_neuron_count; i++)
             {
                 
-                double v = std::nearbyint(output_before_activation[i] * M) + z_next;   // requantize
-                v = std::clamp(v, z_next, 127.0);                                        // ReLU + saturation
+                float v = std::nearbyint(output_before_activation[i] * M) + z_next;   // requantize
+                v = std::clamp(v, z_next, max_value);                                        // ReLU + saturation
                 getOutputData().get<i8>(i) = static_cast<i8>(v);
             }
           break;

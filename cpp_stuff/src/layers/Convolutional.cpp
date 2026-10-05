@@ -61,24 +61,25 @@ namespace ML
         size_t j = 0, l = 0, i = 0, k = 0, d = 0, b = 0;
 
         // select scale - this can be pulled out of the loop since its per layer
-        double M      = SI_VALS[layer_num + 1] / (SI_VALS[layer_num] * SW_VALS[layer_num]);
-        double z_next = SZ_VALS[layer_num + 1];
+        float M, z_next;
         
         if (layer_num == 1 || layer_num == 4 || layer_num == 5)
         {
             M      = SI_VALS[layer_num + 2] / (SI_VALS[layer_num] * SW_VALS[layer_num]);
             z_next = SZ_VALS[layer_num + 2];
         }
-
-        if (layer_num == 7)
+        else if (layer_num == 7)
         {
             M      = SI_VALS[layer_num + 3] / (SI_VALS[layer_num] * SW_VALS[layer_num]);
             z_next = SZ_VALS[layer_num + 3];
         }
+        else
+        {
+            M      = SI_VALS[layer_num + 1] / (SI_VALS[layer_num] * SW_VALS[layer_num]);
+            z_next = SZ_VALS[layer_num + 1];
+        }
 
-    
         // accumulate sum
-
         for (j = 0; j < out_h; j++){
             for (l = 0; l < out_w; l++){
                 
@@ -105,8 +106,8 @@ namespace ML
                     // add bias
                     i32 sum_plus_bias = sum[b] + getBiasData().get<i32>(b);
                     
-                    double out_val = std::round(sum_plus_bias * M) + z_next;   // requantize
-                    out_val = std::clamp(out_val, z_next, 127.0);                    // RELU 
+                    fp32 out_val = std::round(sum_plus_bias * M) + z_next;   // requantize
+                    out_val = std::clamp(out_val, z_next, max_value);                    // RELU 
                 
                     // cast it to i8 and assign to output
                     getOutputData().get<i8>(get_out_flat_idx(j, l, b, out_w, kernel_b)) = static_cast<i8>(out_val);
