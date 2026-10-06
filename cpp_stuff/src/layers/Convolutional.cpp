@@ -59,60 +59,53 @@ namespace ML
 
     
         size_t j = 0, l = 0, i = 0, k = 0, d = 0, b = 0;
+    
+        // where I accumulate the sum
 
-        // select scale - this can be pulled out of the loop since its per layer
-        float M, z_next;
+        double M;      
+        double z_next; 
         
-        if (layer_num == 1 || layer_num == 4 || layer_num == 5)
-        {
+        // there should be a smarter way of doing this, but basically the idea is to choose the correct scale
+        // if because layer_num + 1 might be 0
+        if (layer_num == 1 || layer_num == 4 || layer_num == 5){
             M      = SI_VALS[layer_num + 2] / (SI_VALS[layer_num] * SW_VALS[layer_num]);
             z_next = SZ_VALS[layer_num + 2];
         }
-        else if (layer_num == 7)
-        {
+        else if (layer_num == 7){
             M      = SI_VALS[layer_num + 3] / (SI_VALS[layer_num] * SW_VALS[layer_num]);
             z_next = SZ_VALS[layer_num + 3];
         }
-        else
-        {
+        else {
             M      = SI_VALS[layer_num + 1] / (SI_VALS[layer_num] * SW_VALS[layer_num]);
             z_next = SZ_VALS[layer_num + 1];
         }
 
-        // accumulate sum
-        for (j = 0; j < out_h; j++){
-            for (l = 0; l < out_w; l++){
-                
-                // one accumulate for each output chanel 
-                std::vector<i32> sum(kernel_b, 0);
+        i32 sum;
 
-                for (i = 0; i < kernel_h; i++){
-                    for (k = 0; k < kernel_w; k++){
-                        for (d = 0; d < kernel_d; d++){
-                            
-                            // shared between channels
-                            i32 input_data = dataIn.get<i8>(get_image_flat_idx(j + i, l + k, d, image_w, image_d));
-                            size_t weight_base_addr = get_kernel_flat_idx(i, k, d, 0, kernel_w, kernel_d, kernel_b);
-                            
-                            // channel loop
-                            for (b = 0; b < kernel_b; b++){
-                                sum[b] += getWeightData().get<i8>(weight_base_addr + b) * input_data;
+        for (b = 0; b < kernel_b; b++){
+            for (j = 0; j < out_h; j++){
+                for (l = 0; l < out_w; l++){
+
+                    sum = getBiasData().get<i32>(b);
+
+                    for (d = 0; d < kernel_d; d++){
+                        for (i = 0; i < kernel_h; i++){
+                            for (k = 0; k < kernel_w; k++){
+                                sum += 
+                                (
+                                    getWeightData().get<i8>(get_kernel_flat_idx(i, k, d, b, kernel_w, kernel_d, kernel_b))
+                                    *
+                                    dataIn.get<i8>(get_image_flat_idx(j + i, l + k, d, image_w, image_d))
+                                );
                             }
                         }
                     }
-                }
 
-                for (b = 0; b < kernel_b; b++) {
-                    // add bias
-                    i32 sum_plus_bias = sum[b] + getBiasData().get<i32>(b);
+                    double out_val = std::round(sum * M) + z_next;   // requantize
+                    out_val = std::clamp(out_val, z_next, 127.0);                    // RELU 
                     
-                    fp32 out_val = std::round(sum_plus_bias * M) + z_next;   // requantize
-                    out_val = std::clamp(out_val, z_next, max_value);                    // RELU 
-                
                     // cast it to i8 and assign to output
                     getOutputData().get<i8>(get_out_flat_idx(j, l, b, out_w, kernel_b)) = static_cast<i8>(out_val);
-                    
-                    sum[b] = 0;
                }
            }
         }
