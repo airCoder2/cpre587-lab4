@@ -123,9 +123,84 @@ namespace ML
         // TODO: Your Code Here...
     }
 
+    #define MAX_CHANNELS 128
     // Compute the convolution using SIMD
-    void ConvolutionalLayer::computeSIMD(const LayerData &dataIn) const
+    // DAwud: this inshallah compiles as SIMD, but maybe need to ensure it actually puts SIMD instructions
+    //        reduces time greatly so seems to work.
+    //        changes from each channel 1-by-1 to concurrently doing each channel. 
+    //        Could parallelize this to do multiple calculates at once (SIMD) on our hardware
+    void ConvolutionalLayer::computeSIMD(const LayerData &dataIn, const int layer_num) const
     {
-        // TODO: Your Code Here...
+        // Optimized Convolution Loop to improve cache efficentcy
+        size_t image_w = getInputParams().dims[1];
+        size_t image_d = getInputParams().dims[2];
+
+        size_t out_h = getOutputParams().dims[0];
+        size_t out_w = getOutputParams().dims[1];
+
+        size_t kernel_h = getWeightParams().dims[0];
+        size_t kernel_w = getWeightParams().dims[1];
+        size_t kernel_d = getWeightParams().dims[2];
+        size_t kernel_b = getWeightParams().dims[3];
+
+    
+        size_t j = 0, l = 0, i = 0, k = 0, d = 0, b = 0;
+
+        // select scale
+        float M, z_next;
+        
+        if (layer_num == 1 || layer_num == 4 || layer_num == 5)
+        {
+            M      = SI_VALS[layer_num + 2] / (SI_VALS[layer_num] * SW_VALS[layer_num]);
+            z_next = SZ_VALS[layer_num + 2];
+        }
+        else if (layer_num == 7)
+        {
+            M      = SI_VALS[layer_num + 3] / (SI_VALS[layer_num] * SW_VALS[layer_num]);
+            z_next = SZ_VALS[layer_num + 3];
+        }
+        else
+        {
+            M      = SI_VALS[layer_num + 1] / (SI_VALS[layer_num] * SW_VALS[layer_num]);
+            z_next = SZ_VALS[layer_num + 1];
+        }
+
+        // accumulate sum
+        for (j = 0; j < out_h; j++) {
+            for (l = 0; l < out_w; l++) {
+                
+                // one accumulate for each output chanel 
+                i32 sum[MAX_CHANNELS] = {};
+
+                for (i = 0; i < kernel_h; i++) {
+                    for (k = 0; k < kernel_w; k++) {
+                        for (d = 0; d < kernel_d; d++) {
+                            
+                            // shared between channels
+                            i32 input_data = dataIn.get<i8>(get_image_flat_idx(j + i, l + k, d, image_w, image_d));
+                            size_t weight_base_addr = get_kernel_flat_idx(i, k, d, 0, kernel_w, kernel_d, kernel_b);
+                            
+                            // channel loop
+                            for (b = 0; b < kernel_b; b++) {
+                                sum[b] += getWeightData().get<i8>(weight_base_addr + b) * input_data;
+                            }
+                        }
+                    }
+                }
+
+                for (b = 0; b < kernel_b; b++) {
+                    // add bias
+                    i32 sum_plus_bias = sum[b] + getBiasData().get<i32>(b);
+                    
+                    fp32 out_val = std::round(sum_plus_bias * M) + z_next;   // requantize
+                    out_val = std::clamp(out_val, z_next, max_value);       // RELU 
+                
+                    // cast it to i8 and assign to output
+                    getOutputData().get<i8>(get_out_flat_idx(j, l, b, out_w, kernel_b)) = static_cast<i8>(out_val);
+                    
+                    sum[b] = 0;
+               }
+           }
+        }
     }
 } // namespace ML

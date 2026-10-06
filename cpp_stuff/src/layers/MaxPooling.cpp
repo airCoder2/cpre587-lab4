@@ -65,8 +65,9 @@ namespace ML
         // TODO: Your Code Here...
     }
 
-    void MaxPoolingLayer::computeSIMD(const LayerData &dataIn) const
+    void MaxPoolingLayer::computeSIMD(const LayerData &dataIn, const int layer_num) const
     {
+        MaxPoolingLayer::computeNaive(dataIn, layer_num);
         // TODO: Your Code Here...
     }
 } // namespace ML

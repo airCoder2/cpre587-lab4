@@ -36,7 +36,7 @@ const LayerData& Model::inferenceLayer(const LayerData& inData, const int layerN
         layer.computeTiled(inData);
         break;
     case Layer::InfType::SIMD:
-        layer.computeSIMD(inData);
+        layer.computeSIMD(inData, layerNum);
         break;
     default:
         assert(false && "Inference Type not implemented");

@@ -104,8 +104,9 @@ namespace ML
         // TODO: Your Code Here...
     }
 
-    void DenseLayer::computeSIMD(const LayerData &dataIn) const
+    void DenseLayer::computeSIMD(const LayerData &dataIn, const int layer_num) const
     {
+        DenseLayer::computeNaive(dataIn, layer_num);
         // TODO: Your Code Here...
     }
 } // namespace ML
