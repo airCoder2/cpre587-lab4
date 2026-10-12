@@ -125,10 +125,10 @@ namespace ML
 
     #define MAX_CHANNELS 128
     // Compute the convolution using SIMD
-    // DAwud: this inshallah compiles as SIMD, but maybe need to ensure it actually puts SIMD instructions
-    //        reduces time greatly so seems to work.
-    //        changes from each channel 1-by-1 to concurrently doing each channel. 
-    //        Could parallelize this to do multiple calculates at once (SIMD) on our hardware
+    // Dawud's note: TODO: actually use SIMD insts or ensure compiler assumes SIMD.
+    //              reduces time greatly so seems to work for cache efficentcy tho
+    //              changes from each channel 1-by-1 to concurrently doing each channel. 
+    //              Could parallelize this to do multiple calculates at once on our hardware
     void ConvolutionalLayer::computeSIMD(const LayerData &dataIn, const int layer_num) const
     {
         // Optimized Convolution Loop to improve cache efficentcy
