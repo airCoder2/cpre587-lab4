@@ -167,7 +167,7 @@ namespace ML
                     }
                     double out_val;
 
-                    if (layer_num == 0)
+                    if (layer_num == 7)
                     {
                         out_val = sum / (SW_VALS[layer_num] * SI_VALS[layer_num]);
                         out_val = out_val > 0.0 ? out_val : 0;
@@ -181,9 +181,6 @@ namespace ML
                         // cast it to i8 and assign to output
                         getOutputData().get<i8>(get_out_flat_idx(j, l, b, out_w, kernel_b)) = static_cast<i8>(out_val);
                     }
-                    
-                    
-
                }
            }
         }
