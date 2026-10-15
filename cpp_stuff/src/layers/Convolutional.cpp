@@ -31,6 +31,11 @@ namespace ML
         return (batch_idx * kernel_d * kernel_w * kernel_h + depth_idx * kernel_w * kernel_h + width_idx * kernel_h + height_idx);
     }
 
+    inline size_t get_kernel_flat_idx_cm(size_t height_idx, size_t width_idx, size_t depth_idx, size_t batch_idx, size_t kernel_w, size_t kernel_d, size_t kernel_h){
+        //return kernel_w * kernel_d * kernel_b * height_idx + kernel_d * kernel_b * width_idx + kernel_b * depth_idx + batch_idx;
+        return (batch_idx * kernel_d * kernel_w * kernel_h + depth_idx * kernel_w * kernel_h + height_idx * kernel_w + width_idx);
+    }
+
     inline size_t get_image_flat_idx_rm(size_t height_idx, size_t width_idx, size_t depth_idx, size_t image_w, size_t image_d){
         return image_w * image_d * height_idx + image_d * width_idx + depth_idx;
     }
@@ -138,18 +143,31 @@ namespace ML
                     for (d = 0; d < kernel_d; d++){
                         for (i = 0; i < kernel_h; i++){
                             for (k = 0; k < kernel_w; k++){
+                            //    sum += 
+                            //    (
+                            //        getWeightData().get<i8>(get_kernel_flat_idx_cm(i, k, d, b, kernel_w, kernel_d, kernel_h))
+                            //        *
+                            //        dataIn.get<i8>(get_image_flat_idx(j + i, l + k, d, image_w, image_d))
+                            //    );
+                            // WE ARE UNPACKING here.
+                                i8 weight = getWeightData().get<i8>(get_kernel_flat_idx_cm(i, k, d, b, kernel_w, kernel_d, kernel_h));
+
+                                i8 weight_low = static_cast<i8>((static_cast<ui8>(weight) & 0x0F) << 4) >> 4;
+                                i8 weight_high = static_cast<i8>((static_cast<ui8>(weight) & 0xF0)) >> 4;
+
+                                i8 activation_low = dataIn.get<i8>(get_image_flat_idx(j + i, l + 2*k, d, image_w, image_d));
+                                i8 activation_high = dataIn.get<i8>(get_image_flat_idx(j + i, l + 2*k + 1, d, image_w, image_d));
+                                
                                 sum += 
                                 (
-                                    getWeightData().get<i8>(get_kernel_flat_idx_rm(i, k, d, b, kernel_w, kernel_d, kernel_h))
-                                    *
-                                    dataIn.get<i8>(get_image_flat_idx(j + i, l + k, d, image_w, image_d))
+                                    weight_low * activation_low + weight_high * activation_high
                                 );
                             }
                         }
                     }
                     double out_val;
 
-                    if (layer_num == 100)
+                    if (layer_num == 0)
                     {
                         out_val = sum / (SW_VALS[layer_num] * SI_VALS[layer_num]);
                         out_val = out_val > 0.0 ? out_val : 0;
@@ -158,7 +176,7 @@ namespace ML
                     else
                     {
                         out_val = std::round(sum * M) + z_next;   // requantize
-                        out_val = std::clamp(out_val, z_next, 127.0);                    // RELU 
+                        out_val = std::clamp(out_val, z_next, static_cast<double>(max_value));                    // RELU 
                         
                         // cast it to i8 and assign to output
                         getOutputData().get<i8>(get_out_flat_idx(j, l, b, out_w, kernel_b)) = static_cast<i8>(out_val);

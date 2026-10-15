@@ -81,29 +81,25 @@ namespace ML
 
         case ActivationType::ReLU:
         {
-            float M      = SI_VALS[layer_num + 1] / (SI_VALS[layer_num] * SW_VALS[layer_num]);
-            float z_next = SZ_VALS[layer_num + 1];
+            double M      = SI_VALS[layer_num + 1] / (SI_VALS[layer_num] * SW_VALS[layer_num]);
+            double z_next = SZ_VALS[layer_num + 1];
             for (i = 0; i < output_neuron_count; i++)
             {
-                float v;
+                double out_value;
                 if (layer_num == 100)
                 {
 
-                    v = output_before_activation[i] / (SW_VALS[layer_num] * SI_VALS[layer_num]);
-                    v = v > 0.0 ? v : 0;
-                    getOutputData().get<fp32>(i) = v;
+                    out_value = output_before_activation[i] / (SW_VALS[layer_num] * SI_VALS[layer_num]);
+                    out_value = out_value > 0.0 ? out_value : 0;
+                    getOutputData().get<fp32>(i) = out_value;
                 }
                 
                 else
                 {
-                    v = std::nearbyint(output_before_activation[i] * M) + z_next;   // requantize
-                    v = std::clamp(v, z_next, max_value);                                        // ReLU + saturation
-                    getOutputData().get<i8>(i) = static_cast<i8>(v);
+                    out_value = std::nearbyint(output_before_activation[i] * M) + z_next;   // requantize
+                    out_value = std::clamp(out_value, z_next, static_cast<double>(max_value));                                        // ReLU + saturation
+                    getOutputData().get<i8>(i) = static_cast<i8>(out_value);
                 }
-                
-                
-
-
             }
           break;
         }
