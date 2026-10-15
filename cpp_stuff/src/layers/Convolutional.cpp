@@ -167,7 +167,7 @@ namespace ML
                     }
                     double out_val;
 
-                    if (layer_num == 7)
+                    if (layer_num == 100)
                     {
                         out_val = sum / (SW_VALS[layer_num] * SI_VALS[layer_num]);
                         out_val = out_val > 0.0 ? out_val : 0;
@@ -184,8 +184,6 @@ namespace ML
                }
            }
         }
-
-
     }
 
     // Compute the convolution using threads

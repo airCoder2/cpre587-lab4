@@ -52,7 +52,19 @@ namespace ML
                // sum+= getWeightData().get<i8>(output_neuron_count * j + i) * dataIn.get<i8>(j);
 
                 /*column major*/
-                sum+= getWeightData().get<i8>(input_neuron_count * i + j) * dataIn.get<i8>(j);
+         //       sum+= getWeightData().get<i8>(input_neuron_count * i + j) * dataIn.get<i8>(j);
+                i8 weight = getWeightData().get<i8>(input_neuron_count * i + j);
+
+                i8 weight_low = static_cast<i8>((static_cast<ui8>(weight) & 0x0F) << 4) >> 4;
+                i8 weight_high = static_cast<i8>((static_cast<ui8>(weight) & 0xF0)) >> 4;
+
+                i8 activation_low = dataIn.get<i8>(j*2);
+                i8 activation_high = dataIn.get<i8>(j*2 +1);
+
+                                sum += 
+                                (
+                                    weight_low * activation_low + weight_high * activation_high
+                                );
             }
 
             i32 sum_plus_bias = sum + getBiasData().get<i32>(i);
@@ -86,7 +98,7 @@ namespace ML
             for (i = 0; i < output_neuron_count; i++)
             {
                 double out_value;
-                if (layer_num == 100)
+                if (layer_num == 10)
                 {
 
                     out_value = output_before_activation[i] / (SW_VALS[layer_num] * SI_VALS[layer_num]);

@@ -101,37 +101,37 @@ namespace ML
         // Output shape: 8x8x128
         model.addLayer<ConvolutionalLayer>(
             LayerParams{sizeof(i8), {10, 10, 64}},                                    // Input Data
-            LayerParams{sizeof(fp32), {8, 8, 128}},                                   // Output Data
+            LayerParams{sizeof(i8), {8, 8, 128}},                                   // Output Data
             LayerParams{sizeof(i8), {3, 2, 64, 128}, modelPath / "quantized_model_data"/ weights_dir / "conv2d_5_weights.bin"}, // Weights
             LayerParams{sizeof(i32), {128}, modelPath / "quantized_model_data"/ biases_dir / "conv2d_5_biases.bin"}            // Bias
         );
-//
-//        // --- MPL 3: L9 ---
-//        // Input shape: 8x8x128
-//        // Output shape: 4x4x128
-//        model.addLayer<MaxPoolingLayer>(
-//            LayerParams{sizeof(i8), {8, 8, 128}},                                    // Input Data
-//            LayerParams{sizeof(i8), {4, 4, 128}}                                    // Output Data
-//        );
-//
-//        // --- Flatten 1: L10 ---
-//        // Input shape: 4x4x128
-//        // Output shape: 2048
-//        model.addLayer<FlattenLayer>(
-//            LayerParams{sizeof(i8), {4, 4, 128}},                                    // Input Data
-//            LayerParams{sizeof(i8), {2048}}                                         // Output Data
-//        );
-//
-//        // --- Dense 1: L11 ---
-//        // Input shape: 2048
-//        // Output shape: 256
-//        model.addLayer<DenseLayer>(
-//            LayerParams{sizeof(i8), {2048}},                                    // Input Data
-//            LayerParams{sizeof(i8), {256}},                                   // Output Data
-//            LayerParams{sizeof(i8), {2048, 256}, modelPath / "quantized_model_data"/ weights_dir / "dense_weights.bin"}, // Weights
-//            LayerParams{sizeof(i32), {256}, modelPath / "quantized_model_data"/ biases_dir/ "dense_biases.bin"}  ,    // Bias
-//            DenseLayer::ActivationType::ReLU
-//        );
+
+        // --- MPL 3: L9 ---
+        // Input shape: 8x8x128
+        // Output shape: 4x4x128
+        model.addLayer<MaxPoolingLayer>(
+            LayerParams{sizeof(i8), {8, 8, 128}},                                    // Input Data
+            LayerParams{sizeof(i8), {4, 4, 128}}                                    // Output Data
+        );
+
+        // --- Flatten 1: L10 ---
+        // Input shape: 4x4x128
+        // Output shape: 2048
+        model.addLayer<FlattenLayer>(
+            LayerParams{sizeof(i8), {4, 4, 128}},                                    // Input Data
+            LayerParams{sizeof(i8), {2048}}                                         // Output Data
+        );
+
+        // --- Dense 1: L11 ---
+        // Input shape: 2048
+        // Output shape: 256
+        model.addLayer<DenseLayer>(
+            LayerParams{sizeof(i8), {2048}},                                    // Input Data
+            LayerParams{sizeof(fp32), {256}},                                   // Output Data
+            LayerParams{sizeof(i8), {256, 1024}, modelPath / "quantized_model_data"/ weights_dir / "dense_weights.bin"}, // Weights
+            LayerParams{sizeof(i32), {256}, modelPath / "quantized_model_data"/ biases_dir/ "dense_biases.bin"}  ,    // Bias
+            DenseLayer::ActivationType::ReLU
+        );
 //
 //        // --- Dense 2: L12 ---
 //        // Input shape: 256
@@ -203,7 +203,7 @@ namespace ML
         Model model = buildToyModel(basePath);
         model.allocLayers(); // ME: allocates memory to store out_data from each leayer
 
-        runInferenceTest(model, basePath / "test_input"/"test_input_image.bin", basePath / "test_input_feature_maps" / "conv2d_5_feature.bin");
+        runInferenceTest(model, basePath / "test_input"/"test_input_image.bin", basePath / "test_input_feature_maps" / "dense_feature.bin");
  //       runInferenceTest(model, basePath / "test_input_feature_maps"/"dense_feature.bin", basePath / "test_input_feature_maps" / "dense_1_feature.bin");
 
         // Clean up
