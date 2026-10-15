@@ -184,34 +184,8 @@ namespace ML
 
         // Run inference on the model
         timer.start();
-        const LayerData &output = model.inference(quantized_image, Layer::InfType::SIMD);
+        const LayerData &output = model.inference(quantized_image, Layer::InfType::NAIVE);
         timer.stop();
-
-        // get binary output of first conv layer for showing in jupyter notebook
-        const LayerData &conv1_output = model[0].getOutputData();
-        
-        const Path outputDir("../python_stuff/cpp_layer_output");
-
-        #if defined(QUANT_8_BIT)
-            const Path layer_output_path = outputDir / "conv2d_output_8bit.bin";
-        #elif defined(QUANT_4_BIT)
-            const Path layer_output_path = outputDir / "conv2d_output_4bit.bin";
-        #elif defined(QUANT_2_BIT)
-            const Path layer_output_path = outputDir / "conv2d_output_2bit.bin";
-        #endif
-
-        std::ofstream output_file(layer_output_path, std::ios::binary | std::ios::trunc);
-
-        if(!output_file) { throw std::runtime_error("Failed to open file"); }
-        
-        output_file.write(
-            static_cast<const char *>(conv1_output.raw()), 
-            static_cast<std::streamsize>(conv1_output.getParams().byte_size()));
-
-        if(!output_file) { throw std::runtime_error("Failed to write to file"); }
-
-        output_file.close();
-
 
         // Compare the output
         // Construct a LayerData object from a LayerParams one
