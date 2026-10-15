@@ -40,8 +40,13 @@ namespace ML
         return image_w * image_d * height_idx + image_d * width_idx + depth_idx;
     }
 
-    inline size_t get_out_flat_idx_rm(size_t height_idx, size_t width_idx, size_t batch_idx, size_t out_w, size_t out_d){
-        return out_w * out_d * height_idx + out_d * width_idx + batch_idx;
+    inline size_t get_out_flat_idx_rm(size_t height_idx, size_t width_idx, size_t batch_idx, size_t out_w, size_t out_d, size_t depth_idx, size_t out_h){
+        return out_w * out_h * depth_idx + out_w * height_idx + width_idx;
+    }
+
+    inline size_t get_image_flat_idx_cm(size_t height_idx, size_t width_idx, size_t depth_idx, size_t img_w, size_t img_h){
+        //return kernel_w * kernel_d * kernel_b * height_idx + kernel_d * kernel_b * width_idx + kernel_b * depth_idx + batch_idx;
+        return (depth_idx * img_w * img_h + height_idx * img_w + width_idx);
     }
 
     // Compute the convultion for the layer data
