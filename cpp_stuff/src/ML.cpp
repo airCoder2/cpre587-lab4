@@ -127,23 +127,23 @@ namespace ML
         // Output shape: 256
         model.addLayer<DenseLayer>(
             LayerParams{sizeof(i8), {2048}},                                    // Input Data
-            LayerParams{sizeof(fp32), {256}},                                   // Output Data
+            LayerParams{sizeof(i8), {256}},                                   // Output Data
             LayerParams{sizeof(i8), {256, 1024}, modelPath / "quantized_model_data"/ weights_dir / "dense_weights.bin"}, // Weights
             LayerParams{sizeof(i32), {256}, modelPath / "quantized_model_data"/ biases_dir/ "dense_biases.bin"}  ,    // Bias
             DenseLayer::ActivationType::ReLU
         );
-//
-//        // --- Dense 2: L12 ---
-//        // Input shape: 256
-//        // Output shape: 200
-//        model.addLayer<DenseLayer>(
-//            LayerParams{sizeof(i8), {256}},                                    // Input Data
-//            LayerParams{sizeof(fp32), {200}},                                   // Output Data
-//            LayerParams{sizeof(i8), {256, 200}, modelPath / "quantized_model_data"/ weights_dir / "dense_1_weights.bin"}, // Weights
-//            LayerParams{sizeof(i32), {200}, modelPath / "quantized_model_data"/ biases_dir / "dense_1_biases.bin"}  ,    // Bias
-//            DenseLayer::ActivationType::SoftMax
-//
-//        );
+
+        // --- Dense 2: L12 ---
+        // Input shape: 256
+        // Output shape: 200
+        model.addLayer<DenseLayer>(
+            LayerParams{sizeof(i8), {256}},                                    // Input Data
+            LayerParams{sizeof(fp32), {200}},                                   // Output Data
+            LayerParams{sizeof(i8), {200, 128}, modelPath / "quantized_model_data"/ weights_dir / "dense_1_weights.bin"}, // Weights
+            LayerParams{sizeof(i32), {200}, modelPath / "quantized_model_data"/ biases_dir / "dense_1_biases.bin"}  ,    // Bias
+            DenseLayer::ActivationType::SoftMax
+
+        );
 
         // --- Softmax 1: L13 ---
         // Input shape: 200
@@ -203,7 +203,7 @@ namespace ML
         Model model = buildToyModel(basePath);
         model.allocLayers(); // ME: allocates memory to store out_data from each leayer
 
-        runInferenceTest(model, basePath / "test_input"/"test_input_image.bin", basePath / "test_input_feature_maps" / "dense_feature.bin");
+        runInferenceTest(model, basePath / "test_input"/"test_input_image.bin", basePath / "test_input_feature_maps" / "dense_1_feature.bin");
  //       runInferenceTest(model, basePath / "test_input_feature_maps"/"dense_feature.bin", basePath / "test_input_feature_maps" / "dense_1_feature.bin");
 
         // Clean up

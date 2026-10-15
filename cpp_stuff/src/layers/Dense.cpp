@@ -32,7 +32,7 @@ namespace ML
             fix the column of the matrix to 0, and iterate over the rows. (go down) those 2048 numbers correspond
             to the weights from all 2048 neurons of input data to the fist neuron of the output data
         */
-        size_t input_neuron_count  = getInputParams().dims[0];  // 2048
+        size_t connection_per_neuron_count  = getWeightParams().dims[1];
         size_t output_neuron_count = getOutputParams().dims[0]; // 256
 
         std::vector<i32> output_before_activation;
@@ -46,14 +46,14 @@ namespace ML
 
      
         for (i = 0; i < output_neuron_count; i++){
-            for (j = 0; j < input_neuron_count; j++){
+            for (j = 0; j < connection_per_neuron_count; j++){
 
                 /*row major*/
                // sum+= getWeightData().get<i8>(output_neuron_count * j + i) * dataIn.get<i8>(j);
 
                 /*column major*/
          //       sum+= getWeightData().get<i8>(input_neuron_count * i + j) * dataIn.get<i8>(j);
-                i8 weight = getWeightData().get<i8>(input_neuron_count * i + j);
+                i8 weight = getWeightData().get<i8>(connection_per_neuron_count * i + j);
 
                 i8 weight_low = static_cast<i8>((static_cast<ui8>(weight) & 0x0F) << 4) >> 4;
                 i8 weight_high = static_cast<i8>((static_cast<ui8>(weight) & 0xF0)) >> 4;
@@ -61,10 +61,10 @@ namespace ML
                 i8 activation_low = dataIn.get<i8>(j*2);
                 i8 activation_high = dataIn.get<i8>(j*2 +1);
 
-                                sum += 
-                                (
-                                    weight_low * activation_low + weight_high * activation_high
-                                );
+                sum += 
+                (
+                    weight_low * activation_low + weight_high * activation_high
+                );
             }
 
             i32 sum_plus_bias = sum + getBiasData().get<i32>(i);
@@ -98,7 +98,7 @@ namespace ML
             for (i = 0; i < output_neuron_count; i++)
             {
                 double out_value;
-                if (layer_num == 10)
+                if (layer_num == 100)
                 {
 
                     out_value = output_before_activation[i] / (SW_VALS[layer_num] * SI_VALS[layer_num]);
