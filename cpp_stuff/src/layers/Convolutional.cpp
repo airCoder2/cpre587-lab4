@@ -36,11 +36,8 @@ namespace ML
         return (batch_idx * kernel_d * kernel_w * kernel_h + depth_idx * kernel_w * kernel_h + height_idx * kernel_w + width_idx);
     }
 
-    inline size_t get_image_flat_idx_rm(size_t height_idx, size_t width_idx, size_t depth_idx, size_t image_w, size_t image_d){
-        return image_w * image_d * height_idx + image_d * width_idx + depth_idx;
-    }
 
-    inline size_t get_out_flat_idx_rm(size_t height_idx, size_t width_idx, size_t batch_idx, size_t out_w, size_t out_d, size_t depth_idx, size_t out_h){
+    inline size_t get_out_flat_idx_cm(size_t height_idx, size_t width_idx, size_t depth_idx, size_t out_w, size_t out_h){
         return out_w * out_h * depth_idx + out_w * height_idx + width_idx;
     }
 
@@ -67,6 +64,7 @@ namespace ML
         //getOutputData().get<fp32>(0) = dataIn.get<fp32>(0);
 
         // {64, 64, 3}
+        size_t image_h = getInputParams().dims[0];
         size_t image_w = getInputParams().dims[1];
         size_t image_d = getInputParams().dims[2];
 
@@ -160,8 +158,11 @@ namespace ML
                                 i8 weight_low = static_cast<i8>((static_cast<ui8>(weight) & 0x0F) << 4) >> 4;
                                 i8 weight_high = static_cast<i8>((static_cast<ui8>(weight) & 0xF0)) >> 4;
 
-                                i8 activation_low = dataIn.get<i8>(get_image_flat_idx(j + i, l + 2*k, d, image_w, image_d));
-                                i8 activation_high = dataIn.get<i8>(get_image_flat_idx(j + i, l + 2*k + 1, d, image_w, image_d));
+                                i8 activation_low = dataIn.get<i8>(get_image_flat_idx_cm(j + i, l + 2*k, d, image_w, image_h));
+                                i8 activation_high = dataIn.get<i8>(get_image_flat_idx_cm(j + i, l + 2*k + 1, d, image_w, image_h));
+//
+//                                i8 activation_low = dataIn.get<i8>(get_image_flat_idx(j + i, l + 2*k, d, image_w, image_d));
+//                                i8 activation_high = dataIn.get<i8>(get_image_flat_idx(j + i, l + 2*k + 1, d, image_w, image_d));
                                 
                                 sum += 
                                 (
@@ -184,7 +185,7 @@ namespace ML
                         out_val = std::clamp(out_val, z_next, static_cast<double>(max_value));                    // RELU 
                         
                         // cast it to i8 and assign to output
-                        getOutputData().get<i8>(get_out_flat_idx(j, l, b, out_w, kernel_b)) = static_cast<i8>(out_val);
+                        getOutputData().get<i8>(get_out_flat_idx_cm(j, l, b, out_w, out_h)) = static_cast<i8>(out_val);
                     }
                }
            }

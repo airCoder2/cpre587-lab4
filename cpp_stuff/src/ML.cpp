@@ -172,33 +172,33 @@ namespace ML
         LayerData quantized_image(model[0].getInputParams());
         quantized_image.allocData();
 
-        for (size_t i = 0; i < model[0].getInputParams().flat_count(); i++)
-        {
-            i8 temp = static_cast<i8>(std::clamp(std::nearbyint((SI_VALS[0] * unquantized_img.get<fp32>(i) + SZ_VALS[0])), min_value, max_value));
-
-            quantized_image.get<i8>(i) = temp;
-        }
-
-//        //input is 64 64 3
-//        // now it is    H W D
-//        // chnage it to D H W
-//            size_t img_h = 64;
-//            size_t img_w = 64;
-//            size_t img_d = 3;
+//        for (size_t i = 0; i < model[0].getInputParams().flat_count(); i++)
+//        {
+//            i8 temp = static_cast<i8>(std::clamp(std::nearbyint((SI_VALS[0] * unquantized_img.get<fp32>(i) + SZ_VALS[0])), min_value, max_value));
 //
-//            for (size_t i = 0; i < img_d; i++)
-//            {
-//                for (size_t j = 0; j < img_h; j++)
-//                {
-//                    for (size_t k = 0; k < img_w; k++)
-//                    {
-//                        // image_w * image_d * height_idx + image_d * width_idx + depth_idx;
-//                        i8 temp = static_cast<i8>(std::clamp(std::nearbyint((SI_VALS[0] * unquantized_img.get<fp32>(img_w * img_d * j + img_d * k + i)) + SZ_VALS[0])), min_value, max_value));
-//                        quantized_image.get<i8>(i * img_h * img_w + j * img_w + k) = temp;
-//                    }
-//                }
-//                
-//            }
+//            quantized_image.get<i8>(i) = temp;
+//        }
+
+        //input is 64 64 3
+        // now it is    H W D
+        // chnage it to D H W
+            size_t img_h = 64;
+            size_t img_w = 64;
+            size_t img_d = 3;
+
+            for (size_t i = 0; i < img_d; i++)
+            {
+                for (size_t j = 0; j < img_h; j++)
+                {
+                    for (size_t k = 0; k < img_w; k++)
+                    {
+                        // image_w * image_d * height_idx + image_d * width_idx + depth_idx;
+                        i8 temp = static_cast<i8>(std::clamp(std::nearbyint((SI_VALS[0] * unquantized_img.get<fp32>(img_w * img_d * j + img_d * k + i)) + SZ_VALS[0]), min_value, max_value));
+                        quantized_image.get<i8>(i * img_h * img_w + j * img_w + k) = temp;
+                    }
+                }
+                
+            }
 
 
         // free the unquantized image, we don't need to hold in our memory anymore
