@@ -23,7 +23,7 @@ namespace ML
             to the input feature map size, I don't think it is commonly done that way
             Apparently there usually sits a flatten layer in between.
             Flatten layer outputs a single 1D vector
-            In our case flatten layer's output shape is <2048> and our dense layer's kernel size is <2048 x 256>
+            In our case flatten layer's output shape is <2048> , because the output of max pooling is <4x4x128>
 
             that means the output from out dense layer has to be of shape <256> 1D array
 
@@ -48,7 +48,11 @@ namespace ML
         for (i = 0; i < output_neuron_count; i++){
             for (j = 0; j < input_neuron_count; j++){
 
-                sum+= getWeightData().get<i8>(output_neuron_count * j + i) * dataIn.get<i8>(j);
+                /*row major*/
+               // sum+= getWeightData().get<i8>(output_neuron_count * j + i) * dataIn.get<i8>(j);
+
+                /*column major*/
+                sum+= getWeightData().get<i8>(input_neuron_count * i + j) * dataIn.get<i8>(j);
             }
 
             i32 sum_plus_bias = sum + getBiasData().get<i32>(i);
@@ -81,10 +85,25 @@ namespace ML
             float z_next = SZ_VALS[layer_num + 1];
             for (i = 0; i < output_neuron_count; i++)
             {
+                float v;
+                if (layer_num == 100)
+                {
+
+                    v = output_before_activation[i] / (SW_VALS[layer_num] * SI_VALS[layer_num]);
+                    v = v > 0.0 ? v : 0;
+                    getOutputData().get<fp32>(i) = v;
+                }
                 
-                float v = std::nearbyint(output_before_activation[i] * M) + z_next;   // requantize
-                v = std::clamp(v, z_next, max_value);                                        // ReLU + saturation
-                getOutputData().get<i8>(i) = static_cast<i8>(v);
+                else
+                {
+                    v = std::nearbyint(output_before_activation[i] * M) + z_next;   // requantize
+                    v = std::clamp(v, z_next, max_value);                                        // ReLU + saturation
+                    getOutputData().get<i8>(i) = static_cast<i8>(v);
+                }
+                
+                
+
+
             }
           break;
         }
