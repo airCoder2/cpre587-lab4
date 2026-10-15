@@ -30,8 +30,9 @@ namespace ML
         // TODO: Your Code Here...
     }
 
-    void FlattenLayer::computeSIMD(const LayerData &dataIn) const
+    void FlattenLayer::computeSIMD(const LayerData &dataIn, const int layer_num) const
     {
+        FlattenLayer::computeNaive(dataIn, layer_num);
         // TODO: Your Code Here...
     }
 } // namespace ML

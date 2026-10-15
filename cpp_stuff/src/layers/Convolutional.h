@@ -38,7 +38,7 @@ class ConvolutionalLayer : public Layer {
     virtual void computeNaive(const LayerData& dataIn, const int layer_num) const override;
     virtual void computeThreaded(const LayerData& dataIn) const override;
     virtual void computeTiled(const LayerData& dataIn) const override;
-    virtual void computeSIMD(const LayerData& dataIn) const override;
+    virtual void computeSIMD(const LayerData& dataIn, const int layer_num) const override;
 
    private:
     LayerParams weightParam;
